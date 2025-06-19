@@ -140,17 +140,6 @@ python -m SimpleHTTPServer 8000  # Python 2
 - レスポンシブレイアウト
 - アクセシビリティ対応
 
-## 📱 スクリーンショット
-
-### デスクトップ版
-![Desktop View](screenshots/desktop-view.png)
-
-### モバイル版
-![Mobile View](screenshots/mobile-view.png)
-
-### 使用例
-![Usage Example](screenshots/usage-example.png)
-
 ## 🤝 コントリビューション
 
 コントリビューションを歓迎します！
@@ -191,11 +180,6 @@ python -m http.server 8000
 
 このプロジェクトは [MIT License](LICENSE) の下で公開されています。
 
-## 👨‍💻 作者
-
-**Your Name**
-- GitHub: [@your-username](https://github.com/your-username)
-- Twitter: [@your-twitter](https://twitter.com/your-twitter)
 
 ## 🙏 謝辞
 

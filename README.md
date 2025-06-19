@@ -7,7 +7,6 @@
 
 シンプルで使いやすいSlackリマインダーコマンド生成ツール
 
-[🌐 Live Demo](https://bmajbdia.gensparkspace.com/) | [📥 Download](https://github.com/your-username/slack-reminder-generator/releases)
 
 ## ✨ 特徴
 
@@ -163,15 +162,6 @@ cd slack-reminder-generator
 python -m http.server 8000
 ```
 
-## 📋 今後の予定
-
-- [ ] 時間帯の自動検出機能
-- [ ] テンプレート機能
-- [ ] 複数リマインダーの一括作成
-- [ ] 他言語対応（英語、中国語等）
-- [ ] ダークモード対応
-- [ ] PWA対応
-
 ## 🐛 既知の問題
 
 現在、既知の問題はありません。問題を発見した場合は [Issues](https://github.com/your-username/slack-reminder-generator/issues) でお知らせください。
@@ -196,4 +186,4 @@ python -m http.server 8000
 質問や問題がある場合：
 1. [Issues](https://github.com/your-username/slack-reminder-generator/issues) で問題を報告
 2. [Discussions](https://github.com/your-username/slack-reminder-generator/discussions) で質問
-3. メール: your-email@example.com
+](https://ckxlqwqd.gensparkspace.com/)](https://ckxlqwqd.gensparkspace.com/)

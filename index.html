@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<!-- saved from url=(0035)https://ckxlqwqd.gensparkspace.com/ -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slackリマインダー作成ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a90e2 0%, #7b68ee 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .form-control:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            opacity: 0.6;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group .form-control {
+            flex: 1;
+        }
+
+        .output-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .output-group {
+            margin-bottom: 20px;
+        }
+
+        .output-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .output-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .copy-btn:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #1565c0;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-row .form-group {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+<style>
+    .genspark-notice-dialog {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 10001;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .genspark-notice-content {
+      background-color: white;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      box-sizing: border-box;
+      padding: 10px 30px 30px 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+    }
+
+    .genspark-notice-title {
+      color: #000;
+      font-family: Arial;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 150%; 
+    }
+
+    .genspark-notice-list {
+      margin: 24px 0;
+      
+      color: #606366;
+      font-family: Arial;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 150%;
+      padding-left: 12px;
+    }
+
+    .genspark-notice-list li {
+      margin-bottom: 12px;
+      list-style-type: disc;
+    }
+
+    .genspark-notice-list li a {
+      color: #606366;
+      text-decoration: underline;
+    }
+
+    .genspark-notice-checkbox {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+      gap: 10px;
+
+      color: #232425;
+
+      font-family: Arial;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    .genspark-notice-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+      
+    .genspark-notice-ok {
+      color: #232425;
+
+      text-align: center;
+      font-family: Arial;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 150%; 
+
+      cursor: pointer;
+      display: flex;
+      height: 40px;
+      padding: 6px 14px;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      align-self: stretch;
+      border-radius: 8px;
+      border: 1px solid #000;
+      box-sizing: border-box;
+      width: 100%;
+    }
+  </style></head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 Slackリマインダー作成ツール</h1>
+            <p>簡単にSlackリマインダーコマンドを生成できます</p>
+        </div>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label for="destination-type">📬 宛先タイプ</label>
+                <select id="destination-type" class="form-control">
+                    <option value="me">自分宛て</option>
+                    <option value="channel">チャンネル宛て</option>
+                    <option value="user">個別ユーザー宛て</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="destination-input-group">
+                <label for="destination-input">🎯 宛先名</label>
+                <input type="text" id="destination-input" class="form-control" placeholder="チャンネル名またはユーザー名">
+            </div>
+
+            <div class="form-group">
+                <label for="interval-type">⏰ 間隔設定</label>
+                <select id="interval-type" class="form-control">
+                    <option value="specific">特定の日時</option>
+                    <option value="minutes">何分後</option>
+                    <option value="hours">何時間後</option>
+                    <option value="days">何日後</option>
+                    <option value="daily">毎日</option>
+                    <option value="weekly">毎週</option>
+                    <option value="biweekly">隔週</option>
+                    <option value="monthly">毎月</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group hidden" id="number-input-group">
+                    <label for="number-input">🔢 数字</label>
+                    <input type="number" id="number-input" class="form-control" min="1" value="1">
+                </div>
+
+                <div class="form-group hidden" id="weekday-group">
+                    <label for="weekday-select">📅 曜日</label>
+                    <select id="weekday-select" class="form-control">
+                        <option value="Monday">月曜日</option>
+                        <option value="Tuesday">火曜日</option>
+                        <option value="Wednesday">水曜日</option>
+                        <option value="Thursday">木曜日</option>
+                        <option value="Friday">金曜日</option>
+                        <option value="Saturday">土曜日</option>
+                        <option value="Sunday">日曜日</option>
+                    </select>
+                </div>
+
+                <div class="form-group fade-in" id="date-group">
+                    <label for="date-input">📅 日付</label>
+                    <input type="date" id="date-input" class="form-control">
+                </div>
+
+                <div class="form-group fade-in" id="time-group">
+                    <label for="time-input">🕐 時間</label>
+                    <input type="time" id="time-input" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="message-input">💬 メッセージ</label>
+                <input type="text" id="message-input" class="form-control" placeholder="リマインダーの内容を入力">
+            </div>
+        </div>
+
+        <div class="output-section">
+            <div class="info-box">
+                <p>⚡ 入力内容がリアルタイムで反映されます。生成されたコマンドをSlackにコピー＆ペーストしてご利用ください。</p>
+            </div>
+
+            <div class="output-group">
+                <div class="output-label">📋 生成されたSlackコマンド</div>
+                <div class="output-display" id="slack-command">/remind me "リマインダーです" on June 20, 2025 at 9:00 AM</div>
+            </div>
+
+            <button class="copy-btn" id="copy-btn">
+                📄 コマンドをコピー
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class SlackReminderGenerator {
+            constructor() {
+                this.initializeElements();
+                this.initializeEventListeners();
+                this.initializeDefaults();
+                this.updateUI();
+                this.generateCommand();
+            }
+
+            initializeElements() {
+                this.destinationType = document.getElementById('destination-type');
+                this.destinationInput = document.getElementById('destination-input');
+                this.destinationInputGroup = document.getElementById('destination-input-group');
+                this.intervalType = document.getElementById('interval-type');
+                this.numberInput = document.getElementById('number-input');
+                this.numberInputGroup = document.getElementById('number-input-group');
+                this.weekdaySelect = document.getElementById('weekday-select');
+                this.weekdayGroup = document.getElementById('weekday-group');
+                this.dateInput = document.getElementById('date-input');
+                this.dateGroup = document.getElementById('date-group');
+                this.timeInput = document.getElementById('time-input');
+                this.timeGroup = document.getElementById('time-group');
+                this.messageInput = document.getElementById('message-input');
+                this.slackCommand = document.getElementById('slack-command');
+                this.copyBtn = document.getElementById('copy-btn');
+            }
+
+            initializeEventListeners() {
+                this.destinationType.addEventListener('change', () => this.updateUI());
+                this.intervalType.addEventListener('change', () => this.updateUI());
+                
+                [this.destinationInput, this.numberInput, this.weekdaySelect, 
+                 this.dateInput, this.timeInput, this.messageInput].forEach(element => {
+                    element.addEventListener('input', () => this.generateCommand());
+                });
+
+                this.copyBtn.addEventListener('click', () => this.copyCommand());
+            }
+
+            initializeDefaults() {
+                const now = new Date();
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                this.dateInput.value = tomorrow.toISOString().split('T')[0];
+                this.timeInput.value = '09:00';
+                this.messageInput.value = 'リマインダーです';
+            }
+
+            updateUI() {
+                const destinationType = this.destinationType.value;
+                const intervalType = this.intervalType.value;
+
+                // 宛先入力の表示制御
+                if (destinationType === 'me') {
+                    this.destinationInputGroup.classList.add('hidden');
+                } else {
+                    this.destinationInputGroup.classList.remove('hidden');
+                    this.destinationInputGroup.classList.add('fade-in');
+                    this.destinationInput.placeholder = destinationType === 'channel' 
+                        ? 'general (# は不要)' 
+                        : 'username (@ は不要)';
+                }
+
+                // 間隔設定の表示制御
+                this.hideAllIntervalInputs();
+
+                switch (intervalType) {
+                    case 'minutes':
+                    case 'hours':
+                    case 'days':
+                        this.showNumberInput();
+                        break;
+                    case 'daily':
+                        this.showTimeInput();
+                        break;
+                    case 'weekly':
+                        this.showWeekdayAndTime();
+                        break;
+                    case 'biweekly':
+                        this.showWeekdayAndTime();
+                        this.numberInput.disabled = true;
+                        break;
+                    case 'monthly':
+                        this.showNumberInput();
+                        this.showTimeInput();
+                        break;
+                    case 'specific':
+                        this.showDateAndTime();
+                        break;
+                }
+
+                this.generateCommand();
+            }
+
+            hideAllIntervalInputs() {
+                [this.numberInputGroup, this.weekdayGroup, this.dateGroup, this.timeGroup].forEach(group => {
+                    group.classList.add('hidden');
+                });
+                this.numberInput.disabled = false;
+            }
+
+            showNumberInput() {
+                this.numberInputGroup.classList.remove('hidden');
+                this.numberInputGroup.classList.add('fade-in');
+            }
+
+            showWeekdayAndTime() {
+                this.weekdayGroup.classList.remove('hidden');
+                this.weekdayGroup.classList.add('fade-in');
+                this.showTimeInput();
+            }
+
+            showTimeInput() {
+                this.timeGroup.classList.remove('hidden');
+                this.timeGroup.classList.add('fade-in');
+            }
+
+            showDateAndTime() {
+                this.dateGroup.classList.remove('hidden');
+                this.dateGroup.classList.add('fade-in');
+                this.showTimeInput();
+            }
+
+            generateCommand() {
+                const destinationType = this.destinationType.value;
+                const intervalType = this.intervalType.value;
+                const message = this.messageInput.value || 'リマインダーです';
+
+                let destination = '/remind me';
+                if (destinationType === 'channel' && this.destinationInput.value) {
+                    destination = `/remind #${this.destinationInput.value}`;
+                } else if (destinationType === 'user' && this.destinationInput.value) {
+                    destination = `/remind @${this.destinationInput.value}`;
+                }
+
+                let timeExpression = '';
+                const number = this.numberInput.value || 1;
+                const weekday = this.weekdaySelect.value;
+                const date = this.dateInput.value;
+                const time = this.timeInput.value;
+
+                switch (intervalType) {
+                    case 'minutes':
+                        timeExpression = `in ${number} minute${number > 1 ? 's' : ''}`;
+                        break;
+                    case 'hours':
+                        timeExpression = `in ${number} hour${number > 1 ? 's' : ''}`;
+                        break;
+                    case 'days':
+                        timeExpression = `in ${number} day${number > 1 ? 's' : ''}`;
+                        break;
+                    case 'daily':
+                        timeExpression = time ? `every day at ${this.formatTime(time)}` : 'every day';
+                        break;
+                    case 'weekly':
+                        timeExpression = time 
+                            ? `every ${weekday} at ${this.formatTime(time)}`
+                            : `every ${weekday}`;
+                        break;
+                    case 'biweekly':
+                        timeExpression = time 
+                            ? `every other ${weekday} at ${this.formatTime(time)}`
+                            : `every other ${weekday}`;
+                        break;
+                    case 'monthly':
+                        if (number && time) {
+                            const dayText = this.getOrdinalNumber(number);
+                            timeExpression = `on the ${dayText} of every month at ${this.formatTime(time)}`;
+                        } else if (number) {
+                            const dayText = this.getOrdinalNumber(number);
+                            timeExpression = `on the ${dayText} of every month`;
+                        }
+                        break;
+                    case 'specific':
+                        if (date && time) {
+                            const formattedDate = this.formatDate(date);
+                            timeExpression = `on ${formattedDate} at ${this.formatTime(time)}`;
+                        } else if (date) {
+                            const formattedDate = this.formatDate(date);
+                            timeExpression = `on ${formattedDate}`;
+                        }
+                        break;
+                }
+
+                const command = `${destination} "${message}"${timeExpression ? ` ${timeExpression}` : ''}`;
+                this.slackCommand.textContent = command;
+            }
+
+            formatTime(time24) {
+                if (!time24) return '';
+                const [hours, minutes] = time24.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const hour12 = hour % 12 || 12;
+                return `${hour12}:${minutes} ${ampm}`;
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString + 'T00:00:00');
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                return date.toLocaleDateString('en-US', options);
+            }
+
+            getOrdinalNumber(num) {
+                const n = parseInt(num);
+                if (n >= 11 && n <= 13) return `${n}th`;
+                
+                switch (n % 10) {
+                    case 1: return `${n}st`;
+                    case 2: return `${n}nd`;
+                    case 3: return `${n}rd`;
+                    default: return `${n}th`;
+                }
+            }
+
+            async copyCommand() {
+                const command = this.slackCommand.textContent;
+                
+                try {
+                    await navigator.clipboard.writeText(command);
+                    this.showCopySuccess();
+                } catch (err) {
+                    // フォールバック：古いブラウザ対応
+                    this.fallbackCopyTextToClipboard(command);
+                }
+            }
+
+            fallbackCopyTextToClipboard(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    this.showCopySuccess();
+                } catch (err) {
+                    console.error('コピーに失敗しました:', err);
+                    alert('コピーに失敗しました。手動でコピーしてください。');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+
+            showCopySuccess() {
+                const originalText = this.copyBtn.innerHTML;
+                this.copyBtn.innerHTML = '✅ コピーしました！';
+                this.copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    this.copyBtn.innerHTML = originalText;
+                    this.copyBtn.classList.remove('copied');
+                }, 2000);
+            }
+        }
+
+        // アプリケーション開始
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlackReminderGenerator();
+        });
+    </script>
+
+
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDsveuZquVicJuyxkYLrHFtbQdrQ3w7DGNZ2BK85V1BNgqf5cgC5Xd9KCqh8OzWcOh6xPwAllrJq3RljTo9fO3C27lNV4TBCUmKVfcNS9vCDEg1nkzt2qGWzmI1p1PuHmK7chi%2B4y%2B3Jrm7ESgOvz1KASfLEp8NMjkTHxIrLoAunuVCXfDLI1ijmKvskuYV78YDiYgzJNQxcCnwtMav5OWAoQND2Bb3yJMaCEn0j3hvxmc75HkcZiObvNkdS4GilINrHkMrkJ5KFEDXcCc5%2Fn5VLRR0b86elWWSRDQLclqVFESn0Eu5JvyuKjqaQkeH5LxD%2BGiUOvB4hs1ZBCMMyQPN1K4%2FEkNEK6XFNnaB63xhvFEws%2Fosx0zbpdzQbm6g5ao4trMKTOcP7U7%2B%2FBH4j7bRXSKuhotbWsszQgmkIjU6fwce%2BzedzpCzy76hoOh002O07eI%2B8GOrFE1hSIUrAvqs68gYner2rDRICK17q2eZ7KdN0zjdOBuAwQ6ofD5Cw14sXmtYi0M9oRL2yjPlXh%2B5E%3D";
+        window.__genspark_locale = "ja-JP";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDsveuZquVicJuyxkYLrHFtbQdrQ3w7DGNZ2BK85V1BNgqf5cgC5Xd9KCqh8OzWcOh6xPwAllrJq3RljTo9fO3C27lNV4TBCUmKVfcNS9vCDEg1nkzt2qGWzmI1p1PuHmK7chi+4y+3Jrm7ESgOvz1KASfLEp8NMjkTHxIrLoAunuVCXfDLI1ijmKvskuYV78YDiYgzJNQxcCnwtMav5OWAoQND2Bb3yJMaCEn0j3hvxmc75HkcZiObvNkdS4GilINrHkMrkJ5KFEDXcCc5/n5VLRR0b86elWWSRDQLclqVFESn0Eu5JvyuKjqaQkeH5LxD+GiUOvB4hs1ZBCMMyQPN1K4/EkNEK6XFNnaB63xhvFEws/osx0zbpdzQbm6g5ao4trMKTOcP7U7+/BH4j7bRXSKuhotbWsszQgmkIjU6fwce+zedzpCzy76hoOh002O07eI+8GOrFE1hSIUrAvqs68gYner2rDRICK17q2eZ7KdN0zjdOBuAwQ6ofD5Cw14sXmtYi0M9oRL2yjPlXh+5E=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="./Slackリマインダー作成ツール_files/notice_dialog.js.ダウンロード"></script>
+    <div class="genspark-notice-dialog" style="display: none;">
+      <div class="genspark-notice-content">
+        <h2 class="genspark-notice-title">このサイトはユーザーによって作成されました、ご注意ください：</h2>
+        <ul class="genspark-notice-list">
+          <li>コンテンツには不正確な情報が含まれている可能性があります。使用前に情報を確認してください。</li>
+          <li>不適切なコンテンツを見つけた場合は、<a href="mailto:support@genspark.ai">support@genspark.ai</a> までご連絡ください。</li>
+        </ul>
+        <div class="genspark-notice-checkbox">
+          <input type="checkbox" id="genspark-dont-show">
+          <label for="genspark-dont-show">このメッセージを再表示しない。</label>
+        </div>
+        <div class="genspark-notice-actions">
+          <button class="genspark-notice-ok">OK</button>
+        </div>
+      </div>
+    </div></body></html>

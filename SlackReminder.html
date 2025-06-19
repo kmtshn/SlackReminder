@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<!-- saved from url=(0141)https://gensparkpublicblob.blob.core.windows.net/user-upload-image/page/toolu_01182adcn2mZ4bErMsA49dtN/slack_reminder_generator_ultimate.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slackリマインダー作成ツール</title>
+    <link href="./Slackリマインダー作成ツール_files/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./Slackリマインダー作成ツール_files/all.min.css">
+<style>
+    .genspark-notice-dialog {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 10001;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .genspark-notice-content {
+      background-color: white;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      box-sizing: border-box;
+      padding: 10px 30px 30px 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+    }
+
+    .genspark-notice-title {
+      color: #000;
+      font-family: Arial;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 150%; 
+    }
+
+    .genspark-notice-list {
+      margin: 24px 0;
+      
+      color: #606366;
+      font-family: Arial;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 150%;
+      padding-left: 12px;
+    }
+
+    .genspark-notice-list li {
+      margin-bottom: 12px;
+      list-style-type: disc;
+    }
+
+    .genspark-notice-list li a {
+      color: #606366;
+      text-decoration: underline;
+    }
+
+    .genspark-notice-checkbox {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+      gap: 10px;
+
+      color: #232425;
+
+      font-family: Arial;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    .genspark-notice-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+      
+    .genspark-notice-ok {
+      color: #232425;
+
+      text-align: center;
+      font-family: Arial;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 150%; 
+
+      cursor: pointer;
+      display: flex;
+      height: 40px;
+      padding: 6px 14px;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      align-self: stretch;
+      border-radius: 8px;
+      border: 1px solid #000;
+      box-sizing: border-box;
+      width: 100%;
+    }
+  </style></head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fab fa-slack text-purple-600 mr-3"></i>
+                    Slackリマインダー作成ツール
+                </h1>
+                <p class="text-gray-600">簡単にSlackリマインダーコマンドを生成できます</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 設定パネル -->
+                <div class="space-y-6">
+                    <!-- 宛先設定 -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-paper-plane text-blue-500 mr-2"></i>
+                            宛先設定
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">送信先</label>
+                                <select id="targetType" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <option value="me">自分宛て</option>
+                                    <option value="channel">チャンネル宛て</option>
+                                    <option value="user">個別ユーザー宛て</option>
+                                </select>
+                            </div>
+                            <div id="targetInput" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">チャンネル・ユーザー名</label>
+                                <input type="text" id="targetName" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="#channel-name または @username">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 間隔設定 -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-clock text-green-500 mr-2"></i>
+                            間隔設定
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">数字</label>
+                                    <input type="number" id="numberInput" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-200 cursor-not-allowed" placeholder="数字" min="1" value="1" disabled="">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">間隔</label>
+                                    <select id="intervalType" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="specific">特定の日時</option>
+                                        <option value="minutes">何分後</option>
+                                        <option value="hours">何時間後</option>
+                                        <option value="days">何日後</option>
+                                        <option value="daily">毎日</option>
+                                        <option value="weekly">毎週</option>
+                                        <option value="biweekly">隔週</option>
+                                        <option value="monthly">毎月</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 曜日選択 -->
+                            <div id="daySelection" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">曜日</label>
+                                <select id="dayOfWeek" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <option value="Monday">月曜日</option>
+                                    <option value="Tuesday">火曜日</option>
+                                    <option value="Wednesday">水曜日</option>
+                                    <option value="Thursday">木曜日</option>
+                                    <option value="Friday">金曜日</option>
+                                    <option value="Saturday">土曜日</option>
+                                    <option value="Sunday">日曜日</option>
+                                </select>
+                            </div>
+
+                            <!-- 日付選択（毎月用） -->
+                            <div id="dateSelection" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">日付</label>
+                                <input type="number" id="dayOfMonth" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="日" min="1" max="31" value="1">
+                            </div>
+
+                            <!-- 特定日時選択 -->
+                            <div id="specificDateTime" class="">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">日付</label>
+                                        <input type="date" id="specificDate" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">時間</label>
+                                        <input type="time" id="specificTime" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent" value="09:00">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 時間選択（定期リマインダー用） -->
+                            <div id="timeSelection" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">時間</label>
+                                <input type="time" id="regularTime" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent" value="09:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- メッセージ設定 -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-comment text-yellow-500 mr-2"></i>
+                            メッセージ設定
+                        </h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">リマインダーメッセージ</label>
+                            <textarea id="reminderMessage" class="w-full p-3 h-24 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none" placeholder="リマインダーの内容を入力してください"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 結果表示パネル -->
+                <div class="space-y-6">
+                    <!-- 生成されたコマンド -->
+                    <div class="bg-gray-900 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-4">
+                            <i class="fas fa-terminal text-green-400 mr-2"></i>
+                            生成されたSlackコマンド
+                        </h3>
+                        <div class="relative">
+                            <div id="generatedCommand" class="bg-black p-4 rounded-md text-green-400 font-mono text-sm min-h-16 whitespace-pre-wrap break-all">/remind me "リマインダーメッセージを入力してください" today at 9:00 AM</div>
+                            <button id="copyButton" class="absolute top-2 right-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors duration-200">
+                                <i class="fas fa-copy mr-1"></i>
+                                コピー
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 使用方法 -->
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-4">
+                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                            使用方法
+                        </h3>
+                        <ol class="text-blue-700 space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
+                                宛先を選択（自分・チャンネル・個別ユーザー）
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
+                                間隔の種類と数値を設定
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
+                                リマインダーメッセージを入力
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">4</span>
+                                生成されたコマンドをコピーしてSlackに貼り付け
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- コマンド例 -->
+                    <div class="bg-purple-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-purple-800 mb-4">
+                            <i class="fas fa-lightbulb text-purple-600 mr-2"></i>
+                            コマンド例
+                        </h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="bg-white p-3 rounded border-l-4 border-purple-500">
+                                <div class="font-medium text-purple-700 mb-1">30分後のリマインダー</div>
+                                <code class="text-gray-600">/remind me "会議の準備" in 30 minutes</code>
+                            </div>
+                            <div class="bg-white p-3 rounded border-l-4 border-purple-500">
+                                <div class="font-medium text-purple-700 mb-1">毎週月曜日のリマインダー</div>
+                                <code class="text-gray-600">/remind me "週次レポート" every Monday at 9:00 AM</code>
+                            </div>
+                            <div class="bg-white p-3 rounded border-l-4 border-purple-500">
+                                <div class="font-medium text-purple-700 mb-1">チャンネル宛てリマインダー</div>
+                                <code class="text-gray-600">/remind #general "全体会議" tomorrow at 2:00 PM</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM要素の取得
+        const targetType = document.getElementById('targetType');
+        const targetInput = document.getElementById('targetInput');
+        const targetName = document.getElementById('targetName');
+        const numberInput = document.getElementById('numberInput');
+        const intervalType = document.getElementById('intervalType');
+        const daySelection = document.getElementById('daySelection');
+        const dayOfWeek = document.getElementById('dayOfWeek');
+        const dateSelection = document.getElementById('dateSelection');
+        const dayOfMonth = document.getElementById('dayOfMonth');
+        const specificDateTime = document.getElementById('specificDateTime');
+        const specificDate = document.getElementById('specificDate');
+        const specificTime = document.getElementById('specificTime');
+        const timeSelection = document.getElementById('timeSelection');
+        const regularTime = document.getElementById('regularTime');
+        const reminderMessage = document.getElementById('reminderMessage');
+        const generatedCommand = document.getElementById('generatedCommand');
+        const copyButton = document.getElementById('copyButton');
+
+        // 初期値設定
+        function setInitialValues() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            specificDate.value = tomorrow.toISOString().split('T')[0];
+            reminderMessage.value = "リマインダーメッセージを入力してください";
+            updateIntervalDisplay();
+            generateCommand();
+        }
+
+        // 間隔タイプに応じた表示制御
+        function updateIntervalDisplay() {
+            const interval = intervalType.value;
+            
+            // すべての要素を非表示にリセット
+            daySelection.classList.add('hidden');
+            dateSelection.classList.add('hidden');
+            specificDateTime.classList.add('hidden');
+            timeSelection.classList.add('hidden');
+            
+            // 数字入力欄の有効/無効制御
+            if (interval === 'biweekly' || interval === 'specific') {
+                numberInput.disabled = true;
+                numberInput.classList.add('bg-gray-200', 'cursor-not-allowed');
+            } else {
+                numberInput.disabled = false;
+                numberInput.classList.remove('bg-gray-200', 'cursor-not-allowed');
+            }
+
+            // 間隔タイプに応じた表示
+            switch (interval) {
+                case 'weekly':
+                case 'biweekly':
+                    daySelection.classList.remove('hidden');
+                    timeSelection.classList.remove('hidden');
+                    break;
+                case 'monthly':
+                    dateSelection.classList.remove('hidden');
+                    timeSelection.classList.remove('hidden');
+                    break;
+                case 'daily':
+                    timeSelection.classList.remove('hidden');
+                    break;
+                case 'specific':
+                    specificDateTime.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // 宛先タイプに応じた表示制御
+        function updateTargetDisplay() {
+            if (targetType.value === 'me') {
+                targetInput.classList.add('hidden');
+            } else {
+                targetInput.classList.remove('hidden');
+                if (targetType.value === 'channel') {
+                    targetName.placeholder = '#channel-name';
+                } else {
+                    targetName.placeholder = '@username';
+                }
+            }
+        }
+
+        // コマンド生成
+        function generateCommand() {
+            let command = '/remind ';
+            const message = reminderMessage.value || 'リマインダーメッセージを入力してください';
+            
+            // 宛先設定
+            switch (targetType.value) {
+                case 'me':
+                    command += 'me ';
+                    break;
+                case 'channel':
+                    const channelName = targetName.value || '#channel-name';
+                    command += (channelName.startsWith('#') ? channelName : '#' + channelName) + ' ';
+                    break;
+                case 'user':
+                    const userName = targetName.value || '@username';
+                    command += (userName.startsWith('@') ? userName : '@' + userName) + ' ';
+                    break;
+            }
+
+            command += `"${message}" `;
+
+            // 間隔設定
+            const interval = intervalType.value;
+            const number = numberInput.value || 1;
+
+            switch (interval) {
+                case 'minutes':
+                    command += `in ${number} minute${number > 1 ? 's' : ''}`;
+                    break;
+                case 'hours':
+                    command += `in ${number} hour${number > 1 ? 's' : ''}`;
+                    break;
+                case 'days':
+                    command += `in ${number} day${number > 1 ? 's' : ''}`;
+                    break;
+                case 'daily':
+                    const dailyTime = regularTime.value || '09:00';
+                    const dailyTimeFormatted = formatTime(dailyTime);
+                    command += `every day at ${dailyTimeFormatted}`;
+                    break;
+                case 'weekly':
+                    const weeklyDay = dayOfWeek.value || 'Monday';
+                    const weeklyTime = regularTime.value || '09:00';
+                    const weeklyTimeFormatted = formatTime(weeklyTime);
+                    command += `every ${weeklyDay} at ${weeklyTimeFormatted}`;
+                    break;
+                case 'biweekly':
+                    const biweeklyDay = dayOfWeek.value || 'Monday';
+                    const biweeklyTime = regularTime.value || '09:00';
+                    const biweeklyTimeFormatted = formatTime(biweeklyTime);
+                    command += `every other ${biweeklyDay} at ${biweeklyTimeFormatted}`;
+                    break;
+                case 'monthly':
+                    const monthDay = dayOfMonth.value || 1;
+                    const monthTime = regularTime.value || '09:00';
+                    const monthTimeFormatted = formatTime(monthTime);
+                    const dayWithSuffix = getDayWithSuffix(monthDay);
+                    command += `on the ${dayWithSuffix} of every month at ${monthTimeFormatted}`;
+                    break;
+                case 'specific':
+                    const date = specificDate.value;
+                    const time = specificTime.value || '09:00';
+                    if (date) {
+                        const dateObj = new Date(date + 'T' + time);
+                        const today = new Date();
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        
+                        if (dateObj.toDateString() === today.toDateString()) {
+                            command += `today at ${formatTime(time)}`;
+                        } else if (dateObj.toDateString() === tomorrow.toDateString()) {
+                            command += `tomorrow at ${formatTime(time)}`;
+                        } else {
+                            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                                month: 'long', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                            });
+                            command += `on ${formattedDate} at ${formatTime(time)}`;
+                        }
+                    } else {
+                        command += `tomorrow at ${formatTime(time)}`;
+                    }
+                    break;
+            }
+
+            generatedCommand.textContent = command;
+        }
+
+        // 時間フォーマット関数
+        function formatTime(time) {
+            const [hours, minutes] = time.split(':');
+            const hour24 = parseInt(hours);
+            const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+            const ampm = hour24 >= 12 ? 'PM' : 'AM';
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        // 日付に序数詞を追加
+        function getDayWithSuffix(day) {
+            const dayNum = parseInt(day);
+            if (dayNum >= 11 && dayNum <= 13) {
+                return dayNum + 'th';
+            }
+            switch (dayNum % 10) {
+                case 1: return dayNum + 'st';
+                case 2: return dayNum + 'nd';
+                case 3: return dayNum + 'rd';
+                default: return dayNum + 'th';
+            }
+        }
+
+        // コピー機能
+        function copyToClipboard() {
+            const commandText = generatedCommand.textContent;
+            navigator.clipboard.writeText(commandText).then(() => {
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="fas fa-check mr-1"></i>コピー完了!';
+                copyButton.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                copyButton.classList.add('bg-green-600');
+                
+                setTimeout(() => {
+                    copyButton.innerHTML = originalText;
+                    copyButton.classList.remove('bg-green-600');
+                    copyButton.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                }, 2000);
+            });
+        }
+
+        // イベントリスナー
+        targetType.addEventListener('change', () => {
+            updateTargetDisplay();
+            generateCommand();
+        });
+
+        targetName.addEventListener('input', generateCommand);
+        numberInput.addEventListener('input', generateCommand);
+        intervalType.addEventListener('change', () => {
+            updateIntervalDisplay();
+            generateCommand();
+        });
+
+        dayOfWeek.addEventListener('change', generateCommand);
+        dayOfMonth.addEventListener('input', generateCommand);
+        specificDate.addEventListener('change', generateCommand);
+        specificTime.addEventListener('change', generateCommand);
+        regularTime.addEventListener('change', generateCommand);
+        reminderMessage.addEventListener('input', generateCommand);
+        copyButton.addEventListener('click', copyToClipboard);
+
+        // 初期化
+        setInitialValues();
+        updateTargetDisplay();
+    </script>
+
+
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDhG6paUS6MkIcum3ALnwqdEfScBIsv6Pw40oKTdZIYXadYZEiLUihPia9rfwLjcZMiPNHdKJBZEOlKaUSBQFO6dcstjnbrIzLY0jf3%2B7m1fQwRo%2BGErq9ICeZban4dGB0s3owW6JAFwVw%2BeOeOCoH2Dvz3%2By5u%2FtMQ91HsE1WsQTWLt6%2BE6TMYVA%2BXth5fqXbdW9fdB%2BKAi%2FPrheCHj9AoLs99kpv8LGOXvIr5hA%2BdYUmra7GOx%2Fai4IZjEVtuUgKYNoK5mtugjgLvumTHSsb9pEwa4%2FM9HkPT2K%2FJ%2BQAdhrxR27eyNZ4Lomj3xVj4Q3gLj5IKUSzAonwq39pjPBEaoOrSJZzPXieGN0QyvYKZyIxrE3DW%2F9nWNlaBn1DeedhRxIpXjkFGlmtQ173F%2FuH0QSIUTqdqBgX8NoBaU6Bu29MlQBnyAqXSKPGoijMNQhq28%2BPFQv89IHH6%2BgJKoLXhRKMp%2BWFBYrQiw%2FDr8UhBeOedgJDYZzb43kyS1HMhWnvmenuiul9pkIhZ9SAZl7Ll8%3D";
+        window.__genspark_locale = "ja-JP";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDhG6paUS6MkIcum3ALnwqdEfScBIsv6Pw40oKTdZIYXadYZEiLUihPia9rfwLjcZMiPNHdKJBZEOlKaUSBQFO6dcstjnbrIzLY0jf3+7m1fQwRo+GErq9ICeZban4dGB0s3owW6JAFwVw+eOeOCoH2Dvz3+y5u/tMQ91HsE1WsQTWLt6+E6TMYVA+Xth5fqXbdW9fdB+KAi/PrheCHj9AoLs99kpv8LGOXvIr5hA+dYUmra7GOx/ai4IZjEVtuUgKYNoK5mtugjgLvumTHSsb9pEwa4/M9HkPT2K/J+QAdhrxR27eyNZ4Lomj3xVj4Q3gLj5IKUSzAonwq39pjPBEaoOrSJZzPXieGN0QyvYKZyIxrE3DW/9nWNlaBn1DeedhRxIpXjkFGlmtQ173F/uH0QSIUTqdqBgX8NoBaU6Bu29MlQBnyAqXSKPGoijMNQhq28+PFQv89IHH6+gJKoLXhRKMp+WFBYrQiw/Dr8UhBeOedgJDYZzb43kyS1HMhWnvmenuiul9pkIhZ9SAZl7Ll8=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="./Slackリマインダー作成ツール_files/notice_dialog.js.ダウンロード"></script>
+    </body></html>

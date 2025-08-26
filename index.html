@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0035)https://ckxlqwqd.gensparkspace.com/ -->
-<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="ja">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slackリマインダー作成ツール</title>
     <style>
@@ -86,6 +86,12 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             background: white;
+            line-height: 1.5;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
         }
 
         .form-control:focus {
@@ -107,10 +113,44 @@
         .input-group {
             display: flex;
             gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         .input-group .form-control {
             flex: 1;
+        }
+
+        .remove-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #c53030;
+        }
+        
+        .add-btn {
+            background: #38a169;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        
+        .add-btn:hover {
+            background: #2f855a;
         }
 
         .output-section {
@@ -140,10 +180,8 @@
             font-family: 'Courier New', monospace;
             font-size: 1rem;
             min-height: 60px;
-            display: flex;
-            align-items: center;
+            white-space: pre-wrap;
             word-break: break-all;
-            position: relative;
         }
 
         .copy-btn {
@@ -230,107 +268,7 @@
             }
         }
     </style>
-<style>
-    .genspark-notice-dialog {
-      display: flex;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 10001;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .genspark-notice-content {
-      background-color: white;
-      border-radius: 8px;
-      max-width: 600px;
-      width: 90%;
-      box-sizing: border-box;
-      padding: 10px 30px 30px 30px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      font-size: 16px;
-    }
-
-    .genspark-notice-title {
-      color: #000;
-      font-family: Arial;
-      font-size: 20px;
-      font-style: normal;
-      font-weight: 700;
-      line-height: 150%; 
-    }
-
-    .genspark-notice-list {
-      margin: 24px 0;
-      
-      color: #606366;
-      font-family: Arial;
-      font-size: 14px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 150%;
-      padding-left: 12px;
-    }
-
-    .genspark-notice-list li {
-      margin-bottom: 12px;
-      list-style-type: disc;
-    }
-
-    .genspark-notice-list li a {
-      color: #606366;
-      text-decoration: underline;
-    }
-
-    .genspark-notice-checkbox {
-      display: flex;
-      align-items: center;
-      margin-top: 20px;
-      gap: 10px;
-
-      color: #232425;
-
-      font-family: Arial;
-      font-size: 14px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-    }
-
-    .genspark-notice-actions {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
-      
-    .genspark-notice-ok {
-      color: #232425;
-
-      text-align: center;
-      font-family: Arial;
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 700;
-      line-height: 150%; 
-
-      cursor: pointer;
-      display: flex;
-      height: 40px;
-      padding: 6px 14px;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      align-self: stretch;
-      border-radius: 8px;
-      border: 1px solid #000;
-      box-sizing: border-box;
-      width: 100%;
-    }
-  </style></head>
+</head>
 <body>
     <div class="container">
         <div class="header">
@@ -350,7 +288,17 @@
 
             <div class="form-group hidden" id="destination-input-group">
                 <label for="destination-input">🎯 宛先名</label>
-                <input type="text" id="destination-input" class="form-control" placeholder="チャンネル名またはユーザー名">
+                <input type="text" id="destination-input" class="form-control" placeholder="チャンネル名">
+            </div>
+
+            <div class="form-group hidden" id="user-destination-group">
+                <label>🎯 宛先ユーザー</label>
+                <div id="user-inputs-container">
+                    <div class="input-group">
+                        <input type="text" class="form-control user-destination-input" placeholder="username (@ は不要)">
+                    </div>
+                </div>
+                <button type="button" id="add-user-btn" class="add-btn">宛先を追加</button>
             </div>
 
             <div class="form-group">
@@ -398,8 +346,8 @@
             </div>
 
             <div class="form-group">
-                <label for="message-input">💬 メッセージ</label>
-                <input type="text" id="message-input" class="form-control" placeholder="リマインダーの内容を入力">
+                <label for="message-input">💬 メッセージ（改行可）</label>
+                <textarea id="message-input" class="form-control" placeholder="リマインダーの内容を入力"></textarea>
             </div>
         </div>
 
@@ -410,7 +358,7 @@
 
             <div class="output-group">
                 <div class="output-label">📋 生成されたSlackコマンド</div>
-                <div class="output-display" id="slack-command">/remind me "リマインダーです" on June 20, 2025 at 9:00 AM</div>
+                <div class="output-display" id="slack-command"></div>
             </div>
 
             <button class="copy-btn" id="copy-btn">
@@ -426,13 +374,15 @@
                 this.initializeEventListeners();
                 this.initializeDefaults();
                 this.updateUI();
-                this.generateCommand();
             }
 
             initializeElements() {
                 this.destinationType = document.getElementById('destination-type');
                 this.destinationInput = document.getElementById('destination-input');
                 this.destinationInputGroup = document.getElementById('destination-input-group');
+                this.userDestinationGroup = document.getElementById('user-destination-group');
+                this.userInputsContainer = document.getElementById('user-inputs-container');
+                this.addUserBtn = document.getElementById('add-user-btn');
                 this.intervalType = document.getElementById('interval-type');
                 this.numberInput = document.getElementById('number-input');
                 this.numberInputGroup = document.getElementById('number-input-group');
@@ -450,10 +400,23 @@
             initializeEventListeners() {
                 this.destinationType.addEventListener('change', () => this.updateUI());
                 this.intervalType.addEventListener('change', () => this.updateUI());
-                
-                [this.destinationInput, this.numberInput, this.weekdaySelect, 
+
+                [this.destinationInput, this.numberInput, this.weekdaySelect,
                  this.dateInput, this.timeInput, this.messageInput].forEach(element => {
                     element.addEventListener('input', () => this.generateCommand());
+                });
+
+                this.userInputsContainer.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('user-destination-input')) {
+                        this.generateCommand();
+                    }
+                });
+
+                this.addUserBtn.addEventListener('click', () => this.addUserInput());
+                this.userInputsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-btn')) {
+                        this.removeUserInput(e.target);
+                    }
                 });
 
                 this.copyBtn.addEventListener('click', () => this.copyCommand());
@@ -463,7 +426,7 @@
                 const now = new Date();
                 const tomorrow = new Date(now);
                 tomorrow.setDate(tomorrow.getDate() + 1);
-                
+
                 this.dateInput.value = tomorrow.toISOString().split('T')[0];
                 this.timeInput.value = '09:00';
                 this.messageInput.value = 'リマインダーです';
@@ -473,18 +436,18 @@
                 const destinationType = this.destinationType.value;
                 const intervalType = this.intervalType.value;
 
-                // 宛先入力の表示制御
-                if (destinationType === 'me') {
-                    this.destinationInputGroup.classList.add('hidden');
-                } else {
+                this.destinationInputGroup.classList.add('hidden');
+                this.userDestinationGroup.classList.add('hidden');
+
+                if (destinationType === 'channel') {
                     this.destinationInputGroup.classList.remove('hidden');
                     this.destinationInputGroup.classList.add('fade-in');
-                    this.destinationInput.placeholder = destinationType === 'channel' 
-                        ? 'general (# は不要)' 
-                        : 'username (@ は不要)';
+                    this.destinationInput.placeholder = 'general (# は不要)';
+                } else if (destinationType === 'user') {
+                    this.userDestinationGroup.classList.remove('hidden');
+                    this.userDestinationGroup.classList.add('fade-in');
                 }
 
-                // 間隔設定の表示制御
                 this.hideAllIntervalInputs();
 
                 switch (intervalType) {
@@ -512,6 +475,21 @@
                         break;
                 }
 
+                this.generateCommand();
+            }
+
+            addUserInput() {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group fade-in';
+                inputGroup.innerHTML = `
+                    <input type="text" class="form-control user-destination-input" placeholder="username (@ は不要)">
+                    <button type="button" class="remove-btn">×</button>
+                `;
+                this.userInputsContainer.appendChild(inputGroup);
+            }
+
+            removeUserInput(button) {
+                button.closest('.input-group').remove();
                 this.generateCommand();
             }
 
@@ -548,19 +526,45 @@
                 const destinationType = this.destinationType.value;
                 const intervalType = this.intervalType.value;
                 const message = this.messageInput.value || 'リマインダーです';
+                const timeExpression = this.getTimeExpression();
 
-                let destination = '/remind me';
-                if (destinationType === 'channel' && this.destinationInput.value) {
-                    destination = `/remind #${this.destinationInput.value}`;
-                } else if (destinationType === 'user' && this.destinationInput.value) {
-                    destination = `/remind @${this.destinationInput.value}`;
+                let commands = [];
+                
+                if (destinationType === 'me') {
+                    commands.push(`/remind me "${message}"${timeExpression}`);
+                } else if (destinationType === 'channel' && this.destinationInput.value) {
+                    commands.push(`/remind #${this.destinationInput.value} "${message}"${timeExpression}`);
+                } else if (destinationType === 'user') {
+                    const userInputs = this.userInputsContainer.querySelectorAll('.user-destination-input');
+                    userInputs.forEach(input => {
+                        if (input.value) {
+                            commands.push(`/remind @${input.value} "${message}"${timeExpression}`);
+                        }
+                    });
+                }
+                
+                if (commands.length === 0) {
+                   const initialCommand = this.getInitialCommand(destinationType)
+                   commands.push(`${initialCommand} "${message}"${timeExpression}`);
                 }
 
-                let timeExpression = '';
+                this.slackCommand.textContent = commands.join('\n');
+            }
+            
+            getInitialCommand(destinationType) {
+                 if (destinationType === 'me') return '/remind me';
+                 if (destinationType === 'channel') return '/remind #channel';
+                 if (destinationType === 'user') return '/remind @user';
+                 return '/remind me'
+            }
+
+            getTimeExpression() {
+                const intervalType = this.intervalType.value;
                 const number = this.numberInput.value || 1;
                 const weekday = this.weekdaySelect.value;
                 const date = this.dateInput.value;
                 const time = this.timeInput.value;
+                let timeExpression = '';
 
                 switch (intervalType) {
                     case 'minutes':
@@ -576,12 +580,12 @@
                         timeExpression = time ? `every day at ${this.formatTime(time)}` : 'every day';
                         break;
                     case 'weekly':
-                        timeExpression = time 
+                        timeExpression = time
                             ? `every ${weekday} at ${this.formatTime(time)}`
                             : `every ${weekday}`;
                         break;
                     case 'biweekly':
-                        timeExpression = time 
+                        timeExpression = time
                             ? `every other ${weekday} at ${this.formatTime(time)}`
                             : `every other ${weekday}`;
                         break;
@@ -604,9 +608,7 @@
                         }
                         break;
                 }
-
-                const command = `${destination} "${message}"${timeExpression ? ` ${timeExpression}` : ''}`;
-                this.slackCommand.textContent = command;
+                return timeExpression ? ` ${timeExpression}` : '';
             }
 
             formatTime(time24) {
@@ -621,10 +623,10 @@
             formatDate(dateString) {
                 if (!dateString) return '';
                 const date = new Date(dateString + 'T00:00:00');
-                const options = { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                 };
                 return date.toLocaleDateString('en-US', options);
             }
@@ -632,7 +634,7 @@
             getOrdinalNumber(num) {
                 const n = parseInt(num);
                 if (n >= 11 && n <= 13) return `${n}th`;
-                
+
                 switch (n % 10) {
                     case 1: return `${n}st`;
                     case 2: return `${n}nd`;
@@ -643,12 +645,12 @@
 
             async copyCommand() {
                 const command = this.slackCommand.textContent;
-                
+                if (!command) return;
+
                 try {
                     await navigator.clipboard.writeText(command);
                     this.showCopySuccess();
                 } catch (err) {
-                    // フォールバック：古いブラウザ対応
                     this.fallbackCopyTextToClipboard(command);
                 }
             }
@@ -658,18 +660,10 @@
                 textArea.value = text;
                 textArea.style.position = 'fixed';
                 textArea.style.top = '0';
-                textArea.style.left = '0';
-                textArea.style.width = '2em';
-                textArea.style.height = '2em';
-                textArea.style.padding = '0';
-                textArea.style.border = 'none';
-                textArea.style.outline = 'none';
-                textArea.style.boxShadow = 'none';
-                textArea.style.background = 'transparent';
                 document.body.appendChild(textArea);
                 textArea.focus();
                 textArea.select();
-                
+
                 try {
                     document.execCommand('copy');
                     this.showCopySuccess();
@@ -677,7 +671,7 @@
                     console.error('コピーに失敗しました:', err);
                     alert('コピーに失敗しました。手動でコピーしてください。');
                 }
-                
+
                 document.body.removeChild(textArea);
             }
 
@@ -685,7 +679,7 @@
                 const originalText = this.copyBtn.innerHTML;
                 this.copyBtn.innerHTML = '✅ コピーしました！';
                 this.copyBtn.classList.add('copied');
-                
+
                 setTimeout(() => {
                     this.copyBtn.innerHTML = originalText;
                     this.copyBtn.classList.remove('copied');
@@ -693,34 +687,9 @@
             }
         }
 
-        // アプリケーション開始
         document.addEventListener('DOMContentLoaded', () => {
             new SlackReminderGenerator();
         });
     </script>
-
-
-    <script id="html_badge_script1">
-        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
-            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDsveuZquVicJuyxkYLrHFtbQdrQ3w7DGNZ2BK85V1BNgqf5cgC5Xd9KCqh8OzWcOh6xPwAllrJq3RljTo9fO3C27lNV4TBCUmKVfcNS9vCDEg1nkzt2qGWzmI1p1PuHmK7chi%2B4y%2B3Jrm7ESgOvz1KASfLEp8NMjkTHxIrLoAunuVCXfDLI1ijmKvskuYV78YDiYgzJNQxcCnwtMav5OWAoQND2Bb3yJMaCEn0j3hvxmc75HkcZiObvNkdS4GilINrHkMrkJ5KFEDXcCc5%2Fn5VLRR0b86elWWSRDQLclqVFESn0Eu5JvyuKjqaQkeH5LxD%2BGiUOvB4hs1ZBCMMyQPN1K4%2FEkNEK6XFNnaB63xhvFEws%2Fosx0zbpdzQbm6g5ao4trMKTOcP7U7%2B%2FBH4j7bRXSKuhotbWsszQgmkIjU6fwce%2BzedzpCzy76hoOh002O07eI%2B8GOrFE1hSIUrAvqs68gYner2rDRICK17q2eZ7KdN0zjdOBuAwQ6ofD5Cw14sXmtYi0M9oRL2yjPlXh%2B5E%3D";
-        window.__genspark_locale = "ja-JP";
-        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDsveuZquVicJuyxkYLrHFtbQdrQ3w7DGNZ2BK85V1BNgqf5cgC5Xd9KCqh8OzWcOh6xPwAllrJq3RljTo9fO3C27lNV4TBCUmKVfcNS9vCDEg1nkzt2qGWzmI1p1PuHmK7chi+4y+3Jrm7ESgOvz1KASfLEp8NMjkTHxIrLoAunuVCXfDLI1ijmKvskuYV78YDiYgzJNQxcCnwtMav5OWAoQND2Bb3yJMaCEn0j3hvxmc75HkcZiObvNkdS4GilINrHkMrkJ5KFEDXcCc5/n5VLRR0b86elWWSRDQLclqVFESn0Eu5JvyuKjqaQkeH5LxD+GiUOvB4hs1ZBCMMyQPN1K4/EkNEK6XFNnaB63xhvFEws/osx0zbpdzQbm6g5ao4trMKTOcP7U7+/BH4j7bRXSKuhotbWsszQgmkIjU6fwce+zedzpCzy76hoOh002O07eI+8GOrFE1hSIUrAvqs68gYner2rDRICK17q2eZ7KdN0zjdOBuAwQ6ofD5Cw14sXmtYi0M9oRL2yjPlXh+5E=";
-    </script>
-    
-    <script id="html_notice_dialog_script" src="./Slackリマインダー作成ツール_files/notice_dialog.js.ダウンロード"></script>
-    <div class="genspark-notice-dialog" style="display: none;">
-      <div class="genspark-notice-content">
-        <h2 class="genspark-notice-title">このサイトはユーザーによって作成されました、ご注意ください：</h2>
-        <ul class="genspark-notice-list">
-          <li>コンテンツには不正確な情報が含まれている可能性があります。使用前に情報を確認してください。</li>
-          <li>不適切なコンテンツを見つけた場合は、<a href="mailto:support@genspark.ai">support@genspark.ai</a> までご連絡ください。</li>
-        </ul>
-        <div class="genspark-notice-checkbox">
-          <input type="checkbox" id="genspark-dont-show">
-          <label for="genspark-dont-show">このメッセージを再表示しない。</label>
-        </div>
-        <div class="genspark-notice-actions">
-          <button class="genspark-notice-ok">OK</button>
-        </div>
-      </div>
-    </div></body></html>
+</body>
+</html>
